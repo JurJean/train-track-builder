@@ -102,6 +102,8 @@ button {
   border: 2px solid var(--colour-border);
   border-radius: 10px;
   cursor: pointer;
+  /* Dragging a piece to the board must not scroll the palette on touch. */
+  touch-action: none;
 }
 
 .piece:hover {

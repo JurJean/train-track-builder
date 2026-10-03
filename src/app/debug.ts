@@ -2,6 +2,8 @@ export interface DebugHandles {
   store?: unknown;
   editor?: unknown;
   view?: unknown;
+  build?: unknown;
+  bus?: unknown;
   train?: unknown;
   sfx?: unknown;
   gallery?: unknown;
