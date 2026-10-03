@@ -8,16 +8,11 @@
   </head>
   <body>
     <div id="app">
-      <aside id="palette">
-        <h2>Pieces</h2>
-        <p>Pick a piece to lay track.</p>
-      </aside>
+      <aside id="palette" aria-label="Track pieces"></aside>
       <main id="board">
         <canvas id="board-canvas"></canvas>
       </main>
-      <div id="toolbar">
-        <span>Toolbar</span>
-      </div>
+      <div id="toolbar" role="group" aria-label="Playback controls"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
