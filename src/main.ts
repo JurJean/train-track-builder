@@ -1,5 +1,6 @@
 import './style.css';
 import './app/debug';
+import { installSfx } from './audio/sfx';
 import { createEditor } from './app/editor';
 import { debugHandles } from './app/debug';
 import { store } from './app/store';
@@ -12,6 +13,9 @@ import { createToolbar } from './ui/toolbar';
 
 // The editor owns the current layout and exposes itself as window.__ttb.editor in dev.
 createEditor();
+
+// Sound listens to the event bus; nothing else calls the audio module directly.
+installSfx();
 
 // The palette and toolbar are pure DOM controls: they reflect window.__ttb.store
 // and either update it or announce an intent.
