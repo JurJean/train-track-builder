@@ -34,13 +34,28 @@ npm run dev -- --port 5555 --strictPort
 Playwright starts its own dev server on port 4173 (`--strictPort`), so nothing
 needs to be running first.
 
+### Track art gallery
+
+`gallery.html` is a dev page (served by the dev server, and part of the
+production build) for reviewing the track art in `src/render/track-art.ts`. It
+draws every kind at all four rotations, valid and invalid placement ghosts (the
+invalid one is muted red with a diagonal hatch), and two connected samples — an
+oval with a station and a figure-eight through a crossing — on the grass
+background. A zoom control renders the same scene from 20 to 96 pixels per cell
+so the art can be checked for crispness.
+
+Open <http://localhost:5173/gallery.html> after `npm run dev`.
+
 ## Layout
 
 ```
 index.html            app shell: palette, board (canvas), toolbar
+gallery.html          dev page: every track piece, ghosts and sample layouts
 src/
   main.ts             bootstraps the shell and sizes the canvas
+  gallery.ts          draws the track art gallery
   style.css           full-viewport layout, soft warm colours
+  gallery.css         gallery layout
   model/              pure logic and shared contracts (no DOM)
   sim/                train simulation (no DOM)
   render/             canvas drawing
@@ -56,7 +71,9 @@ tests/e2e/            Playwright tests
   (`types.ts`), the track piece catalogue (`pieces.ts`), and later layout/route
   logic.
 - `src/sim` is the train simulation; also DOM-free, so it can be unit tested.
-- `src/render` draws to the canvas.
+- `src/render` draws to the canvas. `track-art.ts` owns `drawPiece`, the one
+  place track pieces are painted; it caches a sprite per kind x rotation x zoom
+  bucket.
 - `src/ui` owns DOM elements and input handling.
 - `src/audio` owns sound effects.
 - `src/app` wires the pieces together and exposes debug handles in dev builds via
@@ -90,6 +107,49 @@ carriage at eight headings so the art can be judged for stretching and
 mirroring. It is part of Vite's multi-page input. In dev,
 `window.__ttb.preview` exposes the angle, speed, frame, puff and reduced-motion
 state so tests and QA can drive it.
+
+## Controls
+
+The DOM controls around the board live in `src/ui` and only touch shared state:
+
+- The palette (`#palette`) has eight piece buttons plus Rotate and Erase. Each
+  button sets the current `tool` on the store; hovering or focusing a piece
+  shows a larger preview. The selected tool is marked with `aria-pressed`.
+- The toolbar (`#toolbar`) has Undo/Redo, a Go!/Stop button, a labelled speed
+  slider and a mute toggle. Mute is saved to `localStorage` under `ttb:muted`
+  and emits `mute-changed` on the event bus.
+- Keyboard shortcuts: `R` rotate, `E` erase, `Esc` deselect,
+  `Ctrl/Cmd+Z` undo, `Ctrl/Cmd+Shift+Z` or `Ctrl+Y` redo. The history shortcuts
+  fire intents (`src/app/intents.ts`) rather than acting directly, so the editor
+  and simulation can pick them up later. Shortcuts are ignored while typing.
+
+The observable app store is `src/app/store.ts`, exposed as `window.__ttb.store`
+in dev so tests can drive it with `store.set({ ... })`.
+
+## Sound effects
+
+Every sound is synthesised live with the Web Audio API (`src/audio/sfx.ts`) —
+there are no audio files. The module subscribes to the event bus, so no other
+module calls it directly, and the `AudioContext` is created (or resumed) lazily
+on the first user gesture. If audio is unavailable or blocked, the sounds are
+simply skipped. The mute flag is read from and written to `localStorage` under
+`ttb:muted`.
+
+| Event                  | Sound    | Recipe                                                                 |
+| ---------------------- | -------- | ---------------------------------------------------------------------- |
+| `piece-placed` (joined) | clack   | Two short triangle partials (~190 Hz, ~300 Hz) + a band-passed noise click; pitch/volume jitter ±6–10%. |
+| `piece-placed` (alone)  | tap     | Same idea, quieter (one partial) and a little higher.                  |
+| `piece-removed`         | thunk   | Sine sweeping 180 Hz → 70 Hz with a low-passed noise puff.             |
+| `placement-rejected`    | tick    | Only a very quiet, short band-passed noise blip — never a buzzer.      |
+| `train-started`         | toot    | Two whistle notes; each is a 1×/2×/3× sine stack with a fast attack, gentle release and a small pitch dip. A quiet chuff loop follows until `train-stopped`. |
+| `train-stopped`         | —       | Stops the chuff loop.                                                  |
+| `mute-changed`          | —       | Mutes/unmutes; also silences and stops the chuff loop.                 |
+
+For QA, `window.__ttb.sfx` has `play(name)` plus `clack()`, `tap()`, `thunk()`,
+`tick()`, `toot()` and `chuff()` helpers (dev builds only).
+
+Under 700 px wide the palette moves to a horizontally scrollable bar above the
+toolbar; every touch target is at least 44 px.
 
 ## Testing
 

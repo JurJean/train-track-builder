@@ -1,0 +1,71 @@
+:root {
+  --colour-bg: #f7efe4;
+  --colour-bar: #f3e2cf;
+  --colour-border: #d8b894;
+  --colour-ink: #5b4636;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--colour-ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--colour-bg);
+}
+
+#gallery-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.6rem 1rem;
+  background: var(--colour-bar);
+  border-bottom: 2px solid var(--colour-border);
+}
+
+#gallery-bar h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+#gallery-bar .control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#gallery-bar .control.checkbox {
+  gap: 0.35rem;
+}
+
+#zoom {
+  width: 180px;
+  accent-color: #a9793f;
+}
+
+#zoom-value {
+  min-width: 5.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#gallery-stage {
+  width: 100%;
+  padding: 0 0 2rem;
+}
+
+#gallery-canvas {
+  display: block;
+  width: 100%;
+}

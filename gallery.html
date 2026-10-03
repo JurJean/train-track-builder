@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Track art gallery — Train Track Builder</title>
+    <link rel="stylesheet" href="/src/gallery.css" />
+  </head>
+  <body>
+    <header id="gallery-bar">
+      <h1>Track art gallery</h1>
+      <label class="control">
+        <span>Zoom</span>
+        <input id="zoom" type="range" min="20" max="96" step="2" value="36" />
+      </label>
+      <output id="zoom-value">36 px/cell</output>
+      <label class="control checkbox">
+        <input id="grid-toggle" type="checkbox" checked />
+        <span>Cell grid</span>
+      </label>
+    </header>
+    <main id="gallery-stage">
+      <canvas id="gallery-canvas"></canvas>
+    </main>
+    <script type="module" src="/src/gallery.ts"></script>
+  </body>
+</html>
