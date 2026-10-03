@@ -108,6 +108,28 @@ The DOM controls around the board live in `src/ui` and only touch shared state:
 The observable app store is `src/app/store.ts`, exposed as `window.__ttb.store`
 in dev so tests can drive it with `store.set({ ... })`.
 
+## Sound effects
+
+Every sound is synthesised live with the Web Audio API (`src/audio/sfx.ts`) —
+there are no audio files. The module subscribes to the event bus, so no other
+module calls it directly, and the `AudioContext` is created (or resumed) lazily
+on the first user gesture. If audio is unavailable or blocked, the sounds are
+simply skipped. The mute flag is read from and written to `localStorage` under
+`ttb:muted`.
+
+| Event                  | Sound    | Recipe                                                                 |
+| ---------------------- | -------- | ---------------------------------------------------------------------- |
+| `piece-placed` (joined) | clack   | Two short triangle partials (~190 Hz, ~300 Hz) + a band-passed noise click; pitch/volume jitter ±6–10%. |
+| `piece-placed` (alone)  | tap     | Same idea, quieter (one partial) and a little higher.                  |
+| `piece-removed`         | thunk   | Sine sweeping 180 Hz → 70 Hz with a low-passed noise puff.             |
+| `placement-rejected`    | tick    | Only a very quiet, short band-passed noise blip — never a buzzer.      |
+| `train-started`         | toot    | Two whistle notes; each is a 1×/2×/3× sine stack with a fast attack, gentle release and a small pitch dip. A quiet chuff loop follows until `train-stopped`. |
+| `train-stopped`         | —       | Stops the chuff loop.                                                  |
+| `mute-changed`          | —       | Mutes/unmutes; also silences and stops the chuff loop.                 |
+
+For QA, `window.__ttb.sfx` has `play(name)` plus `clack()`, `tap()`, `thunk()`,
+`tick()`, `toot()` and `chuff()` helpers (dev builds only).
+
 Under 700 px wide the palette moves to a horizontally scrollable bar above the
 toolbar; every touch target is at least 44 px.
 
