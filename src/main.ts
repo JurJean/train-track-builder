@@ -1,5 +1,9 @@
 import './style.css';
 import './app/debug';
+import { createEditor } from './app/editor';
+
+// The editor owns the current layout and exposes itself as window.__ttb.editor in dev.
+createEditor();
 
 const canvas = document.querySelector<HTMLCanvasElement>('#board-canvas');
 

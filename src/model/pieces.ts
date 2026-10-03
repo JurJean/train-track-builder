@@ -173,12 +173,21 @@ function rotateOnce(def: PieceDef): PieceDef {
   };
 }
 
+// Rotation is pure and heavily reused (every occupancy and connector lookup),
+// so memoise the handful of (kind, rotation) combinations.
+const rotationCache: Partial<Record<PieceKind, PieceDef[]>> = {};
+
 export function rotateDef(kind: PieceKind, rotation: Rotation): PieceDef {
-  let def = PIECES[kind];
-  for (let i = 0; i < rotation; i += 1) {
-    def = rotateOnce(def);
+  let byRotation = rotationCache[kind];
+  if (!byRotation) {
+    byRotation = [PIECES[kind]];
+    rotationCache[kind] = byRotation;
   }
-  return def;
+
+  for (let i = 1; i <= rotation; i += 1) {
+    if (!byRotation[i]) byRotation[i] = rotateOnce(byRotation[i - 1]);
+  }
+  return byRotation[rotation];
 }
 
 export function occupiedCells(p: PlacedPiece): Cell[] {
