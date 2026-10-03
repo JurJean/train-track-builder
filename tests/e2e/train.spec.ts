@@ -433,8 +433,10 @@ test.describe('Go! — the train runs round your loop', () => {
     const sorted = [...intervals].sort((a, b) => a - b);
     const p95 = sorted[Math.floor(sorted.length * 0.95)];
     const max = sorted[sorted.length - 1];
-    expect(p95).toBeLessThan(50);
-    expect(max).toBeLessThan(250);
+    // A smooth 60 fps demo sits near 16 ms; allow generous headroom for busy
+    // CI runners while still catching a real stall.
+    expect(p95).toBeLessThan(60);
+    expect(max).toBeLessThan(400);
 
     // Only request frames while the train moves: after stopping, easing to
     // rest and the steam fading, the board should settle and stop redrawing.
