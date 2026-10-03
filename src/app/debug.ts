@@ -5,6 +5,7 @@ export interface DebugHandles {
   train?: unknown;
   sfx?: unknown;
   gallery?: unknown;
+  preview?: unknown;
 }
 
 declare global {

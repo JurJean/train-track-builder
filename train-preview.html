@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Train preview — Train Track Builder</title>
+    <link rel="stylesheet" href="/src/train-preview.css" />
+  </head>
+  <body>
+    <header id="preview-bar">
+      <h1>Train preview</h1>
+      <label class="control">
+        <span>Speed</span>
+        <input id="speed" type="range" min="0" max="100" step="1" value="45" />
+      </label>
+      <output id="speed-value">1.1 cells/s</output>
+    </header>
+    <main id="preview-stage">
+      <canvas id="train-canvas"></canvas>
+    </main>
+    <section id="heading-stage">
+      <h2>Every heading — engine (top) and carriage (bottom)</h2>
+      <canvas id="heading-canvas"></canvas>
+    </section>
+    <script type="module" src="/src/train-preview.ts"></script>
+  </body>
+</html>
