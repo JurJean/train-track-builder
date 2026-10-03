@@ -12,10 +12,11 @@ declare global {
   }
 }
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && typeof window !== 'undefined') {
   window.__ttb = window.__ttb ?? {};
 }
 
 export function debugHandles(): DebugHandles | undefined {
+  if (typeof window === 'undefined') return undefined;
   return window.__ttb;
 }
