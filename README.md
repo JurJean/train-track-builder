@@ -34,13 +34,28 @@ npm run dev -- --port 5555 --strictPort
 Playwright starts its own dev server on port 4173 (`--strictPort`), so nothing
 needs to be running first.
 
+### Track art gallery
+
+`gallery.html` is a dev page (served by the dev server, and part of the
+production build) for reviewing the track art in `src/render/track-art.ts`. It
+draws every kind at all four rotations, valid and invalid placement ghosts (the
+invalid one is muted red with a diagonal hatch), and two connected samples — an
+oval with a station and a figure-eight through a crossing — on the grass
+background. A zoom control renders the same scene from 20 to 96 pixels per cell
+so the art can be checked for crispness.
+
+Open <http://localhost:5173/gallery.html> after `npm run dev`.
+
 ## Layout
 
 ```
 index.html            app shell: palette, board (canvas), toolbar
+gallery.html          dev page: every track piece, ghosts and sample layouts
 src/
   main.ts             bootstraps the shell and sizes the canvas
+  gallery.ts          draws the track art gallery
   style.css           full-viewport layout, soft warm colours
+  gallery.css         gallery layout
   model/              pure logic and shared contracts (no DOM)
   sim/                train simulation (no DOM)
   render/             canvas drawing
@@ -56,7 +71,9 @@ tests/e2e/            Playwright tests
   (`types.ts`), the track piece catalogue (`pieces.ts`), and later layout/route
   logic.
 - `src/sim` is the train simulation; also DOM-free, so it can be unit tested.
-- `src/render` draws to the canvas.
+- `src/render` draws to the canvas. `track-art.ts` owns `drawPiece`, the one
+  place track pieces are painted; it caches a sprite per kind x rotation x zoom
+  bucket.
 - `src/ui` owns DOM elements and input handling.
 - `src/audio` owns sound effects.
 - `src/app` wires the pieces together and exposes debug handles in dev builds via
