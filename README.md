@@ -73,6 +73,24 @@ dirty or a layer asks for animation frames, so an idle board uses no CPU.
 In dev, `window.__ttb.view` exposes the live camera, `screenToCell`,
 `cellToScreen` and the frame counter.
 
+## Train art
+
+`src/render/train-art.ts` draws the wooden toy engine, its carriages and its
+steam in world units on a camera-transformed context. `drawEngine(ctx, pose)`
+and `drawCarriage(ctx, pose, colorIndex)` take a pose whose `heading` is 0 east
+and π/2 south; the art is rotated about the car's centre and never scaled, and
+each car is symmetric across its long axis, so a car cannot stretch or mirror at
+any heading. `createSteam` / `updateSteam` / `drawSteam` emit and fade soft puffs
+(faster speed means more puffs) and switch off under
+`prefers-reduced-motion: reduce`.
+
+The dev page `train-preview.html` (`src/train-preview.ts`) drives an engine and
+two carriages round a circle with a speed control, and lays out the engine and a
+carriage at eight headings so the art can be judged for stretching and
+mirroring. It is part of Vite's multi-page input. In dev,
+`window.__ttb.preview` exposes the angle, speed, frame, puff and reduced-motion
+state so tests and QA can drive it.
+
 ## Testing
 
 - Unit tests live next to the code as `*.test.ts` (e.g.

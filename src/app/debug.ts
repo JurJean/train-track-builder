@@ -4,6 +4,7 @@ export interface DebugHandles {
   view?: unknown;
   train?: unknown;
   sfx?: unknown;
+  preview?: unknown;
 }
 
 declare global {
