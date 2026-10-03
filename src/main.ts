@@ -1,8 +1,10 @@
 import './style.css';
 import './app/debug';
 import { installSfx } from './audio/sfx';
+import { createBuilder } from './app/build';
 import { createEditor } from './app/editor';
 import { debugHandles } from './app/debug';
+import { bus } from './app/events';
 import { store } from './app/store';
 import { GRID_COLS, GRID_ROWS } from './model/pieces';
 import type { Cell, Point } from './model/types';
@@ -12,7 +14,7 @@ import { installShortcuts } from './ui/shortcuts';
 import { createToolbar } from './ui/toolbar';
 
 // The editor owns the current layout and exposes itself as window.__ttb.editor in dev.
-createEditor();
+const editor = createEditor();
 
 // Sound listens to the event bus; nothing else calls the audio module directly.
 installSfx();
@@ -32,9 +34,14 @@ const canvas = document.querySelector<HTMLCanvasElement>('#board-canvas');
 if (canvas) {
   const board = createBoard(canvas, { cols: GRID_COLS, rows: GRID_ROWS });
 
+  // Wire the board to the editor and palette so the player can build.
+  const builder = createBuilder({ board, editor, store, bus, palette: paletteElement });
+
   // In dev, expose the live view so tests and the console can poke at it.
   const handles = debugHandles();
   if (handles) {
+    handles.build = builder;
+    handles.bus = bus;
     handles.view = {
       get camera() {
         return { ...board.camera };

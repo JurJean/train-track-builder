@@ -108,6 +108,29 @@ The DOM controls around the board live in `src/ui` and only touch shared state:
 The observable app store is `src/app/store.ts`, exposed as `window.__ttb.store`
 in dev so tests can drive it with `store.set({ ... })`.
 
+## Building
+
+`src/app/build.ts` connects the palette, the board, the track art and the editor:
+
+- A track layer paints `editor.layout()` with `drawPiece` and redraws whenever
+  the bus emits `layout-changed`.
+- With a piece selected, hovering the board shows a ghost at the cell under the
+  pointer; `checkPlacement` decides whether it looks valid (translucent) or
+  invalid (muted red with a hatch). A click or tap places it with `editor.place`
+  and the tool stays selected, ready for the next piece.
+- Pressing a piece button and dragging onto the board places it where the
+  pointer is released. This uses pointer events, so it works with touch: the
+  ghost follows the finger and the piece drops on lift. A small movement still
+  counts as a tap, and two-finger pan/zoom from the board keeps working.
+- Rotate with the Rotate button or `R`; the ghost turns with it.
+- The Erase tool highlights the piece under the pointer and removes it on click.
+- Undo/redo intents call the editor (`src/app/intents.ts`) and the board keeps
+  `store.canUndo`/`store.canRedo` in sync with the editor history.
+- An invalid placement only emits `placement-rejected` — no alerts, no shaking.
+
+In dev, `window.__ttb.build` exposes the builder (`pointerCell()`) and
+`window.__ttb.bus` is the event bus.
+
 ## Sound effects
 
 Every sound is synthesised live with the Web Audio API (`src/audio/sfx.ts`) —

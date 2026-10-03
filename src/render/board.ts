@@ -37,6 +37,8 @@ export interface PointerInfo {
   pointerType: string;
   button: number;
   buttons: number;
+  /** True when this event belongs to an active camera pan. */
+  panning: boolean;
   shiftKey: boolean;
   altKey: boolean;
   ctrlKey: boolean;
@@ -352,6 +354,7 @@ export function createBoard(canvas: HTMLCanvasElement, options: BoardOptions): B
       pointerType: event.pointerType,
       button: event.button,
       buttons: event.buttons,
+      panning: panPointerId === event.pointerId,
       shiftKey: event.shiftKey,
       altKey: event.altKey,
       ctrlKey: event.ctrlKey,
