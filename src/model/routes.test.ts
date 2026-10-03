@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { opposite, rotateDef, step, worldConnectors } from './pieces';
-import { closedLoops, findRoutes, hasClosedLoop, primaryLoop } from './routes';
+import {
+  closedLoops,
+  findRoutes,
+  hasClosedLoop,
+  hasClosedRoute,
+  primaryLoop,
+  sameRouteSteps,
+} from './routes';
 import type { Layout, PieceKind, PlacedPiece, Rotation, Route } from './types';
 
 const p = (
@@ -269,6 +276,39 @@ describe('findRoutes / closedLoops / hasClosedLoop', () => {
     expect(routes).toHaveLength(2);
     expect(routes.every((route) => route.closed)).toBe(true);
     expect(routes.map((route) => route.steps.length).sort()).toEqual([4, 8]);
+  });
+});
+
+describe('sameRouteSteps / hasClosedRoute', () => {
+  it('sees an untouched loop as the same after edits elsewhere', () => {
+    const l = layout(bridgeTunnelLoop('b', 20, 0));
+    const route = primaryLoop(l)!;
+
+    // Add an unrelated loop somewhere else.
+    const extended = layout([
+      ...bridgeTunnelLoop('b', 20, 0),
+      ...sharpCircle('a', 0, 0),
+    ]);
+    expect(sameRouteSteps(route.steps, primaryLoop(extended)!.steps)).toBe(true);
+    expect(hasClosedRoute(extended, route.steps)).toBe(true);
+  });
+
+  it('reports a broken loop as gone', () => {
+    const l = layout(bridgeTunnelLoop('b', 20, 0));
+    const route = primaryLoop(l)!;
+
+    const broken = layout(bridgeTunnelLoop('b', 20, 0).filter((p) => p.id !== 'b5'));
+    expect(hasClosedRoute(broken, route.steps)).toBe(false);
+  });
+
+  it('rejects a route whose steps merely look similar', () => {
+    const l = layout(bridgeTunnelLoop('b', 20, 0));
+    const route = primaryLoop(l)!;
+    const wrong = route.steps.map((step, index) =>
+      index === 0 ? { ...step, to: step.to === 0 ? 1 : 0 } : step,
+    );
+    expect(hasClosedRoute(l, wrong)).toBe(false);
+    expect(sameRouteSteps(route.steps, wrong)).toBe(false);
   });
 });
 
