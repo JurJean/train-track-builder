@@ -1,24 +1,38 @@
 import './style.css';
 import './app/debug';
 import { createEditor } from './app/editor';
+import { debugHandles } from './app/debug';
+import { GRID_COLS, GRID_ROWS } from './model/pieces';
+import type { Cell, Point } from './model/types';
+import { createBoard } from './render/board';
 
 // The editor owns the current layout and exposes itself as window.__ttb.editor in dev.
 createEditor();
 
 const canvas = document.querySelector<HTMLCanvasElement>('#board-canvas');
 
-function resize(): void {
-  if (!canvas) return;
-  const rect = canvas.getBoundingClientRect();
-  const scale = window.devicePixelRatio || 1;
-  const width = Math.max(1, Math.round(rect.width * scale));
-  const height = Math.max(1, Math.round(rect.height * scale));
-  if (canvas.width !== width) canvas.width = width;
-  if (canvas.height !== height) canvas.height = height;
-}
+if (canvas) {
+  const board = createBoard(canvas, { cols: GRID_COLS, rows: GRID_ROWS });
 
-resize();
-window.addEventListener('resize', resize);
-if (canvas && typeof ResizeObserver !== 'undefined') {
-  new ResizeObserver(resize).observe(canvas);
+  // In dev, expose the live view so tests and the console can poke at it.
+  const handles = debugHandles();
+  if (handles) {
+    handles.view = {
+      get camera() {
+        return { ...board.camera };
+      },
+      get width() {
+        return board.view().width;
+      },
+      get height() {
+        return board.view().height;
+      },
+      screenToCell: (point: Point) => board.screenToCell(point),
+      cellToScreen: (cell: Cell) => board.cellToScreen(cell),
+      get frames() {
+        return board.frames();
+      },
+      fit: () => board.fit(),
+    };
+  }
 }

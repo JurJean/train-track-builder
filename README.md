@@ -62,6 +62,17 @@ tests/e2e/            Playwright tests
 - `src/app` wires the pieces together and exposes debug handles in dev builds via
   `window.__ttb`.
 
+## Board renderer
+
+The board is a device-pixel-ratio aware canvas driven by `src/render/board.ts`,
+with the pure camera maths in `src/render/camera.ts`. Layers register through
+`board.addLayer(z, (ctx, view) => ...)`, where the context is already
+transformed into world units (1 = one cell). The board only redraws when it is
+dirty or a layer asks for animation frames, so an idle board uses no CPU.
+
+In dev, `window.__ttb.view` exposes the live camera, `screenToCell`,
+`cellToScreen` and the frame counter.
+
 ## Testing
 
 - Unit tests live next to the code as `*.test.ts` (e.g.
