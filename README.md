@@ -73,6 +73,27 @@ dirty or a layer asks for animation frames, so an idle board uses no CPU.
 In dev, `window.__ttb.view` exposes the live camera, `screenToCell`,
 `cellToScreen` and the frame counter.
 
+## Controls
+
+The DOM controls around the board live in `src/ui` and only touch shared state:
+
+- The palette (`#palette`) has eight piece buttons plus Rotate and Erase. Each
+  button sets the current `tool` on the store; hovering or focusing a piece
+  shows a larger preview. The selected tool is marked with `aria-pressed`.
+- The toolbar (`#toolbar`) has Undo/Redo, a Go!/Stop button, a labelled speed
+  slider and a mute toggle. Mute is saved to `localStorage` under `ttb:muted`
+  and emits `mute-changed` on the event bus.
+- Keyboard shortcuts: `R` rotate, `E` erase, `Esc` deselect,
+  `Ctrl/Cmd+Z` undo, `Ctrl/Cmd+Shift+Z` or `Ctrl+Y` redo. The history shortcuts
+  fire intents (`src/app/intents.ts`) rather than acting directly, so the editor
+  and simulation can pick them up later. Shortcuts are ignored while typing.
+
+The observable app store is `src/app/store.ts`, exposed as `window.__ttb.store`
+in dev so tests can drive it with `store.set({ ... })`.
+
+Under 700 px wide the palette moves to a horizontally scrollable bar above the
+toolbar; every touch target is at least 44 px.
+
 ## Testing
 
 - Unit tests live next to the code as `*.test.ts` (e.g.
