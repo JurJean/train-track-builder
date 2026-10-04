@@ -156,6 +156,22 @@ describe('steam', () => {
     expect(steam.puffs.every((puff) => puff.age < puff.life)).toBe(true);
   });
 
+  it('stops emitting when asked, but lets the puffs already in the air fade', () => {
+    const steam = createSteam();
+    for (let i = 0; i < 10; i += 1) stepSteam(steam, 0.05, AT_ORIGIN, 2, false);
+    const emitted = steam.emitted;
+    const alive = steam.puffs.length;
+    expect(alive).toBeGreaterThan(0);
+
+    stepSteam(steam, 0.05, AT_ORIGIN, 2, false, false);
+    expect(steam.emitted).toBe(emitted); // no new puffs
+    expect(steam.puffs.length).toBeLessThanOrEqual(alive); // old ones aged
+
+    // With emission off forever, the air eventually clears.
+    for (let i = 0; i < 200; i += 1) stepSteam(steam, 0.05, AT_ORIGIN, 2, false, false);
+    expect(steam.puffs.length).toBe(0);
+  });
+
   it('clears everything and stops emitting under reduced motion', () => {
     const steam = createSteam();
     for (let i = 0; i < 10; i += 1) stepSteam(steam, 0.05, AT_ORIGIN, 2, false);

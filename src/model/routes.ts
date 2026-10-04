@@ -293,6 +293,30 @@ export function closedLoops(layout: Layout): Route[] {
   return findRoutes(layout).filter((route) => route.closed);
 }
 
+/**
+ * Whether two routes are the same walk: same steps in the same order, each
+ * entering and leaving the same connectors. Closed routes are canonicalised by
+ * `findRoutes` (rotated to their lowest piece id), so an untouched loop always
+ * compares equal even after pieces are added or removed elsewhere.
+ */
+export function sameRouteSteps(a: readonly RouteStep[], b: readonly RouteStep[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i].pieceId !== b[i].pieceId || a[i].from !== b[i].from || a[i].to !== b[i].to) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * True when `steps` is still a complete loop in `layout`. The train uses this
+ * after every edit to decide whether it can keep running on its own route.
+ */
+export function hasClosedRoute(layout: Layout, steps: readonly RouteStep[]): boolean {
+  return closedLoops(layout).some((route) => sameRouteSteps(route.steps, steps));
+}
+
 /** True when the track forms at least one complete loop, so Go! can light up. */
 export function hasClosedLoop(layout: Layout): boolean {
   return findRoutes(layout).some((route) => route.closed);

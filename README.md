@@ -149,6 +149,34 @@ in dev so tests can drive it with `store.set({ ... })`.
 In dev, `window.__ttb.build` exposes the builder (`pointerCell()`) and
 `window.__ttb.bus` is the event bus.
 
+## The train loop
+
+`src/app/train-loop.ts` is the glue between the editor, the simulation and the
+board:
+
+- Every `layout-changed` sets `store.canGo` from `hasClosedLoop(layout)`, so
+  Go! lights up as soon as a loop closes and dims when it breaks.
+- The `go` intent takes `primaryLoop`, builds its `routePath` and starts a train
+  of one engine plus two carriages at the route's start (or resumes a train
+  already parked on the same route). It emits `train-started`.
+- The `stop` intent stops the train, which eases to a halt and stays parked
+  where it stopped, returns the mode to `build` and emits `train-stopped`.
+- A board layer above the track draws `carPoses` with the train art and the
+  steam, fading cars out between a tunnel's two portals. Animation frames are
+  requested only while the train is moving or steam is still fading, so a
+  parked train costs nothing.
+- The speed slider feeds `speedFromSlider`, and the train eases smoothly to the
+  new speed because `stepTrain` bounds its acceleration.
+- While running, if an edit removes or rearranges a piece of the train's own
+  loop the train eases to a stop and the app returns to `build`. Edits elsewhere
+  leave it running.
+- `?demo=oval` loads a ready-made oval with a station, a bridge and a tunnel so
+  the train can be tested straight away.
+
+In dev, `window.__ttb.train` exposes `state()`, `carPoses()`, `length()`,
+`closed()`, `poseAt(s)`, `nearestDistance(x, y)`, `routeSteps()` and `mode()`
+for tests and the console.
+
 ## Sound effects
 
 Every sound is synthesised live with the Web Audio API (`src/audio/sfx.ts`) —

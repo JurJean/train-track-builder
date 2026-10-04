@@ -1,3 +1,4 @@
+import { GRID_COLS, GRID_ROWS } from '../model/pieces';
 import type { Layout, PieceKind, PlacedPiece, Rotation } from '../model/types';
 
 function piece(
@@ -51,6 +52,38 @@ export function figureEightLayout(): Layout {
       piece('f5', 'curve-sharp', 3, 4, 2),
       piece('f6', 'curve-sharp', 2, 4, 3),
       piece('f7', 'curve-sharp', 2, 3, 0),
+    ],
+  };
+}
+
+/**
+ * The `?demo=oval` preset: a small closed loop near the middle of the board
+ * carrying a station, a bridge and a tunnel, so the train can be tested (and
+ * seen running into the tunnel) straight away. Every connector joins, so it is
+ * one closed route.
+ */
+export function demoOvalLayout(): Layout {
+  const ox = 14;
+  const oy = 11;
+  const at = (
+    id: string,
+    kind: PieceKind,
+    x: number,
+    y: number,
+    rotation: Rotation,
+  ): PlacedPiece => piece(id, kind, ox + x, oy + y, rotation);
+
+  return {
+    cols: GRID_COLS,
+    rows: GRID_ROWS,
+    pieces: [
+      at('d1', 'curve-sharp', 0, 0, 0),
+      at('d2', 'tunnel', 1, 0, 1),
+      at('d3', 'bridge', 2, 0, 1),
+      at('d4', 'curve-sharp', 3, 0, 1),
+      at('d5', 'curve-sharp', 3, 1, 2),
+      at('d6', 'station', 1, 1, 1),
+      at('d7', 'curve-sharp', 0, 1, 3),
     ],
   };
 }

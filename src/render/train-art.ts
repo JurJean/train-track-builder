@@ -377,7 +377,9 @@ function spawnPuff(pose: Pose, speed: number): SteamPuff {
 
 /**
  * Pure steam step. `dt` is in seconds; `reduced` mirrors
- * `prefers-reduced-motion`. Exported so the aging and emission rules can be
+ * `prefers-reduced-motion`. `emit` may be turned off to let the puffs already
+ * in the air fade out without producing new ones (the board stops animating
+ * once the train is parked). Exported so the aging and emission rules can be
  * unit tested without a DOM.
  */
 export function stepSteam(
@@ -386,6 +388,7 @@ export function stepSteam(
   enginePose: Pose,
   speed: number,
   reduced: boolean,
+  emit = true,
 ): void {
   if (reduced) {
     steam.puffs.length = 0;
@@ -408,6 +411,8 @@ export function stepSteam(
   }
   steam.puffs = alive;
 
+  if (!emit) return;
+
   const rate = STEAM_IDLE_RATE + Math.max(0, speed) * STEAM_SPEED_RATE;
   steam.accumulator += rate * step;
   while (steam.accumulator >= 1) {
@@ -417,14 +422,18 @@ export function stepSteam(
   }
 }
 
-/** Age and emit steam puffs. Clears and stops under reduced motion. */
+/**
+ * Age steam puffs and (unless `emit` is false) release new ones. Clears and
+ * stops under reduced motion.
+ */
 export function updateSteam(
   steam: Steam,
   dt: number,
   enginePose: Pose,
   speed: number,
+  emit = true,
 ): void {
-  stepSteam(steam, dt, enginePose, speed, prefersReducedMotion());
+  stepSteam(steam, dt, enginePose, speed, prefersReducedMotion(), emit);
 }
 
 /** Draw the current steam puffs as soft, fading circles. */
